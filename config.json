@@ -1,0 +1,26 @@
+{
+  "filename": "generated.css",
+  "variables": {
+    "colors": [
+      { "name": "red", "value": "#ff0000" },
+      { "name": "green", "value": "#00ff00" },
+      { "name": "blue", "value": "#0000ff" }
+    ],
+    "spacing": {
+      "unit": "rem",
+      "values": [0, 0.25, 0.5, 1, 2, 4, 8, 16]
+    },
+    "breakpoints": [
+      { "name": "s", "value": "30rem" },
+      { "name": "m", "value": "48rem" },
+      { "name": "l", "value": "64rem" }
+    ],
+    "border": {
+      "width": {
+        "unit": "rem",
+        "values": [0.125, 0.25, 0.5, 1, 2]
+      },
+      "styles": ["dotted", "dashed", "solid"]
+    }
+  }
+}
