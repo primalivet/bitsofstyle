@@ -11,9 +11,9 @@
       "values": [0, 0.25, 0.5, 1, 2, 4, 8, 16]
     },
     "breakpoints": [
-      { "name": "s", "value": "30rem" },
-      { "name": "m", "value": "48rem" },
-      { "name": "l", "value": "64rem" }
+      { "prefix": "s-", "value": "30rem" },
+      { "prefix": "m-", "value": "48rem" },
+      { "prefix": "l-", "value": "64rem" }
     ],
     "border": {
       "width": {

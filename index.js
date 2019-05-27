@@ -1,26 +1,32 @@
+const utils = require('./utils')
+const io = require('./io')
+const css = require('./css')
 
 async function main () {
-  const { variables } = await readConfig()
-  const appendDestFile = makeAppendDestFile('./generated.css')
-  const perBreakpoint = makePerBreakpoint(variables.breakpoints)
-
-  await cleanDestFile('./generated.css')
-
-  const colors = perBreakpoint(generateColors, variables.colors)
-  await appendDestFile(colors, 'Wrote colors to file successfully')
-
-  // const spacing = perBreakpoint(generateSpacing, variables.spacing)
-  // await appendDestFile(spacing, 'Wrote spacing to file successfully')
-
-  // const borders = perBreakpoint(generateBorders, variables.border)
-  // await appendDestFile(borders, 'Wrote borders to file successfully')
-
-  // readConfig()
-  //  .then(checkForExistingDestFile)
-  //  .then(cleanDestFile)
-  //  .then(generateColors)
-  //  .then(appendDestFile)
-  //  .then(generateSpacing)
+  console.log('Reading config')
+  io.readConfig('config.json')
+    .then(utils.log('Config loaded\nCleaning output file'))
+    .then(io.cleanOutput)
+    .then(utils.log('Output file cleaned\nGenerating borders'))
+    .then(config => {
+      const borderCss = css.perBreakpoint(config, css.generateBorders)
+      console.log('Writing borders to output file')
+      return io.appendOutput(config, borderCss)
+    })
+    .then(utils.log('Wrote borders successfully\nGenerating colors'))
+    .then(config => {
+      const colorCss = css.perBreakpoint(config, css.generateColors)
+      console.log('Writing colors to output file')
+      return io.appendOutput(config, colorCss)
+    })
+    .then(utils.log('Wrote colors successfully\nGenerating spacing'))
+    .then(config => {
+      const spacingCss = css.perBreakpoint(config, css.generateSpacing)
+      console.log('Writing spacing to output file')
+      return io.appendOutput(config, spacingCss)
+    })
+    .then(utils.log('Wrote spacing successfully\nDone'))
+    .catch(err => console.log(err))
 }
 
-// main()
+main()

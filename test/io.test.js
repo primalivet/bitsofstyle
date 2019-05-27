@@ -1,7 +1,23 @@
 const test = require('ava')
 const fs = require('fs').promises
 const path = require('path')
-const { readConfig, cleanOutput, makeAppendOutput } = require('../io.js')
+const { readConfig, cleanOutput, appendOutput } = require('../io.js')
+
+test.beforeEach(async t => {
+  t.context.config = await fs.readFile(path.resolve(__dirname, '../config.json'), { encoding: 'utf8' })
+    .then(JSON.parse)
+  t.context.config.filename = 'mockOutput.css'
+})
+
+test.afterEach(async t => {
+  const access = await fs.access(path.resolve(__dirname, '../', t.context.config.filename))
+    .then(() => true)
+    .catch(() => false)
+
+  if (access) {
+    await fs.unlink(path.resolve(__dirname, '../', t.context.config.filename))
+  }
+})
 
 test('readConfig returns promise', async t => {
   const actual = typeof readConfig('config.json').then
@@ -17,66 +33,44 @@ test('readConfig resolves to object', async t => {
   t.is(actual, expected)
 })
 
-test('readConfig rejects with an error invalid path', async t => {
-  await t.throwsAsync(readConfig('nonExistingConfig.json'), { instanceOf: Error, message: 'Could not read config nonExistingConfig.json' })
+test('readConfig throws on invalid filename', async t => {
+  await t.throwsAsync(readConfig('nonExistingConfig.json'), { instanceOf: Error })
 })
 
-test('cleanOutput returns filename', async t => {
-  // cleanOutput side effect creates a new file outputFile1 in project root dir
-  const actual = await cleanOutput('outputFile1')
-  const expected = 'outputFile1'
-
-  // remove outputFile1 file in project root dir
-  await fs.unlink(path.resolve(__dirname, '../outputFile1'))
+test.serial('cleanOutput returns config', async t => {
+  const actual = await cleanOutput(t.context.config)
+  const expected = t.context.config
 
   t.is(actual, expected)
 })
 
-test('cleanOutput removes content in exisiting file', async t => {
-  // create a sample file 'outputFile2' with content in the project root dir
-  await fs.writeFile(path.resolve(__dirname, '../outputFile2'), 'hello world')
-  // clean/overwrite the sample file
-  await cleanOutput('outputFile2')
+test.serial('cleanOutput removes content in exisiting file', async t => {
+  await fs.writeFile(path.resolve(__dirname, '../', t.context.config.filename), 'hello world')
+  await cleanOutput(t.context.config)
 
-  // read the content from the sample file
-  const actual = await fs.readFile(path.resolve(__dirname, '../outputFile2'), { encoding: 'utf8' })
+  const actual = await fs.readFile(path.resolve(__dirname, '../', t.context.config.filename), { encoding: 'utf8' })
   const expected = ''
 
-  // remove sample file in the project root dir
-  await fs.unlink(path.resolve(__dirname, '../outputFile2'))
-
   t.is(actual, expected)
 })
 
-test('cleanOutput throws on unable to write/clean file', async t => {
-  // try to clean unexisting file with forbidden filename chars
-  await t.throwsAsync(cleanOutput('\\/\\ '), { instanceOf: Error })
+test.serial('cleanOutput throws on unable to write/clean file', async t => {
+  t.context.config.filename = '/ \\\\ '
+  await t.throwsAsync(cleanOutput(t.context.config), { instanceOf: Error })
 })
 
-test('makeAppendOutput returns function', t => {
-  const actual = typeof makeAppendOutput('foobar')
-  const expected = 'function'
+test.serial('appendOutput should write to file', async t => {
+  await fs.writeFile(path.resolve(__dirname, '../', t.context.config.filename), '')
+  await appendOutput(t.context.config, 'hello world')
 
-  t.is(actual, expected)
-})
-
-test('makeAppendOutput should write to file', async t => {
-  // create appendOutput function
-  const appendOutput = makeAppendOutput('outputFile3')
-  // add content of create a new file with content 'hello world'
-  await appendOutput('hello world')
-
-  // read the sample file in the project root dir
-  const actual = await fs.readFile(path.resolve(__dirname, '../outputFile3'), { encoding: 'utf8' })
+  const actual = await fs.readFile(path.resolve(__dirname, '../', t.context.config.filename), { encoding: 'utf8' })
   const expected = 'hello world'
 
-  // remove sample file in project root dir
-  await fs.unlink(path.resolve(__dirname, '../outputFile3'))
-
   t.is(actual, expected)
 })
 
-test('makeAppendOutput throws on unable to write file', async t => {
-  // try to clean unexisting file with forbidden filename chars
-  await t.throwsAsync(makeAppendOutput('\\/\\ ')(''), { instanceOf: Error })
+test.serial('appendOutput throws on unable to write file', async t => {
+  t.context.config.filename = '\\/\\/'
+
+  await t.throwsAsync(appendOutput(t.context.config, ''), { instanceOf: Error })
 })

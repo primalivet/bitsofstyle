@@ -6,6 +6,13 @@ exports.compose = function (...fs) {
 
 exports.log = function (label) {
   return function (value) {
+    console.log(label)
+    return value
+  }
+}
+
+exports.trace = function (label) {
+  return function (value) {
     console.log(label, value)
     return value
   }

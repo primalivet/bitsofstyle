@@ -1,84 +1,129 @@
-const test = require('ava')
-const fs = require('fs').promises
 const path = require('path')
-const { makePerBreakpoint, generateBorders, generateColors, generateSpacing } = require('../css.js')
+const fs = require('fs').promises
+const test = require('ava')
 
-test.before(async t => {
-  // load default config
-  t.context.config = await fs.readFile(path.resolve(__dirname, '../config.json'), { encoding: 'utf8' }).then(JSON.parse)
+const { perBreakpoint, generateBorders, generateColors, generateSpacing } = require('../css.js')
+
+test.before('load default config', async t => {
+  const configPath = path.resolve(__dirname, '../config.json')
+
+  t.context.config = await fs.readFile(configPath, { encoding: 'utf8' })
+    .then(JSON.parse)
 })
 
-test('makePerBreakpoint throws on missing argument', t => {
-  t.throws(() => makePerBreakpoint(), Error)
-})
-
-test('makePerBreakpoint throws on wrong type of argument', t => {
-  t.throws(() => makePerBreakpoint(['100px', '200px', '300px']), Error)
-})
-
-test('makePerBreakpoint throws on invalid array objects', t => {
-  t.throws(() => makePerBreakpoint([{ name: 'small' }]), Error)
-  t.throws(() => makePerBreakpoint([{ name: 'small', value: undefined }]), Error)
-  t.throws(() => makePerBreakpoint([{ name: undefined, value: '100px' }]), Error)
-})
-
-test('makePerBreakpoint returns a function', t => {
-  const actual = makePerBreakpoint(t.context.config.variables.breakpoints)
-  const expected = 'function'
-
-  t.is(typeof actual, expected)
-})
-
-test('perBreakpoint returns a correct media query string', t => {
-  const mockFn = () => { return '' }
-  const { config } = t.context
-  const perBreakpoint = makePerBreakpoint(config.variables.breakpoints)
-
-  const actual = perBreakpoint(mockFn, config)
+test('perBreakpoint returns a correct css media query string', t => {
+  const { breakpoints } = t.context.config.variables
+  const mockFn = () => { return '.test-class { display: inherit; }\n' }
   // manually build a string from the breakpoint config object
-  const expexted = config.variables.breakpoints.map(breakpoint => {
-    let str = ''
-    str += `@media screen and (min-width: ${breakpoint.value}) {\n`
-    str += '}\n'
-    return str
+  const mockCss = breakpoints.map(bp => {
+    return '' +
+     `@media screen and (min-width: ${bp.value}) {\n` +
+     mockFn() +
+     '}\n'
   }).join('')
 
-  // replace \n and ' ' with '' for comparison
-  t.is(actual.replace(/ |\n/g, ''), expexted.replace(/ |\n/g, ''))
+  const actual = perBreakpoint(t.context.config, mockFn)
+  const expected = mockFn() + mockCss
+
+  t.is(actual, expected)
 })
 
-test('generateBorders throws on missing argument', t => {
-  t.throws(() => generateBorders(), Error)
+test('generateBorders returns a correct css string without prefix', t => {
+  const mockCss = '' +
+   '.b--dotted { border-style: dotted; }\n' +
+   '.b--dashed { border-style: dashed; }\n' +
+   '.b--solid { border-style: solid; }\n' +
+   '.bw1 { border-width: 0.125rem; }\n' +
+   '.bw2 { border-width: 0.25rem; }\n' +
+   '.bw3 { border-width: 0.5rem; }\n' +
+   '.bw4 { border-width: 1rem; }\n' +
+   '.bw5 { border-width: 2rem; }\n'
+
+  const actual = generateBorders(t.context.config)
+  const expected = mockCss
+
+  t.is(actual, expected)
 })
 
-test('generateBorders throws on invalid argument', t => {
-  const mockArgs = [
-    {}, // empty object
-    { styles: ['dotted'] }, // missing width key
-    { width: { unit: 'rem', values: [1, 2] } }, // missing styles key
-    { styles: ['dotted'], width: { unit: [], values: '' } } // wrong types on width[keys]
-  ]
+test('generateBorders returns a correct css string with prefix', t => {
+  const mockCss = '' +
+   '.foo-b--dotted { border-style: dotted; }\n' +
+   '.foo-b--dashed { border-style: dashed; }\n' +
+   '.foo-b--solid { border-style: solid; }\n' +
+   '.foo-bw1 { border-width: 0.125rem; }\n' +
+   '.foo-bw2 { border-width: 0.25rem; }\n' +
+   '.foo-bw3 { border-width: 0.5rem; }\n' +
+   '.foo-bw4 { border-width: 1rem; }\n' +
+   '.foo-bw5 { border-width: 2rem; }\n'
 
-  t.throws(() => generateBorders(mockArgs[0]), Error)
-  t.throws(() => generateBorders(mockArgs[1]), Error)
-  t.throws(() => generateBorders(mockArgs[2]), Error)
-  t.throws(() => generateBorders(mockArgs[3]), Error)
+  const actual = generateBorders(t.context.config, 'foo-')
+  const expected = mockCss
+
+  t.is(actual, expected)
 })
 
-test('generateBorders returns a correct css string', t => {
-  const { border } = t.context.config.variables
-  console.log(border)
+test('generateColors retuns a correct css string without prefix', t => {
+  const mockCss = t.context.config.variables.colors.map(c => {
+    return '' +
+      `.${c.name} { color: ${c.value}; }\n` +
+      `.bg-${c.name} { background-color: ${c.value}; }\n` +
+      `.b--${c.name} { border-color: ${c.value}; }\n`
+  }).join('')
 
-  const actual = generateBorders(border, 'foo')
-  let expected = ''
-  expected += '.foo-b--dotted { border-style: dotted; }\n'
-  expected += '.foo-b--dashed { border-style: dashed; }\n'
-  expected += '.foo-b--solid { border-style: solid; }\n'
-  expected += '.foo-bw1 { border-width: 0.125rem; }\n'
-  expected += '.foo-bw2 { border-width: 0.25rem; }\n'
-  expected += '.foo-bw3 { border-width: 0.5rem; }\n'
-  expected += '.foo-bw4 { border-width: 1rem; }\n'
-  expected += '.foo-bw5 { border-width: 2rem; }\n'
+  const actual = generateColors(t.context.config)
+  const expected = mockCss
+
+  t.is(actual, expected)
+})
+
+test('generateColors retuns a correct css string with prefix', t => {
+  const mockCss = t.context.config.variables.colors.map(c => {
+    return '' +
+      `.foo-${c.name} { color: ${c.value}; }\n` +
+      `.foo-bg-${c.name} { background-color: ${c.value}; }\n` +
+      `.foo-b--${c.name} { border-color: ${c.value}; }\n`
+  }).join('')
+
+  const actual = generateColors(t.context.config, 'foo-')
+  const expected = mockCss
+
+  t.is(actual, expected)
+})
+
+test('generateSpacing retuns a correct css string without prefix', t => {
+  const { spacing } = t.context.config.variables
+  const mockCss = spacing.values.map((value, i) => {
+    return '' +
+      `.ma${i} { margin: ${value}${spacing.unit}; }\n` +
+      `.mv${i} { margin-top: ${value}${spacing.unit}; margin-bottom: ${value}${spacing.unit}; }\n` +
+      `.mh${i} { margin-left: ${value}${spacing.unit}; margin-right: ${value}${spacing.unit}; }\n` +
+      `.mt${i} { margin-top: ${value}${spacing.unit}; }\n` +
+      `.mb${i} { margin-bottom: ${value}${spacing.unit}; }\n` +
+      `.ml${i} { margin-left: ${value}${spacing.unit}; }\n` +
+      `.mr${i} { margin-right: ${value}${spacing.unit}; }\n`
+  }).join('')
+
+  const actual = generateSpacing(t.context.config)
+  const expected = mockCss
+
+  t.is(actual, expected)
+})
+
+test('generateSpacing retuns a correct css string with prefix', t => {
+  const { spacing } = t.context.config.variables
+  const mockCss = spacing.values.map((value, i) => {
+    return '' +
+      `.foo-ma${i} { margin: ${value}${spacing.unit}; }\n` +
+      `.foo-mv${i} { margin-top: ${value}${spacing.unit}; margin-bottom: ${value}${spacing.unit}; }\n` +
+      `.foo-mh${i} { margin-left: ${value}${spacing.unit}; margin-right: ${value}${spacing.unit}; }\n` +
+      `.foo-mt${i} { margin-top: ${value}${spacing.unit}; }\n` +
+      `.foo-mb${i} { margin-bottom: ${value}${spacing.unit}; }\n` +
+      `.foo-ml${i} { margin-left: ${value}${spacing.unit}; }\n` +
+      `.foo-mr${i} { margin-right: ${value}${spacing.unit}; }\n`
+  }).join('')
+
+  const actual = generateSpacing(t.context.config, 'foo-')
+  const expected = mockCss
 
   t.is(actual, expected)
 })

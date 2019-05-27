@@ -9,20 +9,18 @@ exports.readConfig = function (filename) {
     })
 }
 
-exports.cleanOutput = function (filename) {
-  return fs.writeFile(path.resolve(__dirname, filename), '', { encoding: 'utf8' })
-    .then(() => filename)
+exports.cleanOutput = function (config) {
+  return fs.writeFile(path.resolve(__dirname, config.filename), '', { encoding: 'utf8' })
+    .then(() => config)
     .catch(() => {
-      throw new Error(`Could not clean file ${filename}`)
+      throw new Error(`Could not clean file ${config.filename}`)
     })
 }
 
-exports.makeAppendOutput = function (filename) {
-  return function (content) {
-    return fs.appendFile(path.resolve(__dirname, filename), content)
-      .then(() => filename)
-      .catch(() => {
-        throw new Error(`Could not append to file ${filename}`)
-      })
-  }
+exports.appendOutput = function (config, content) {
+  return fs.appendFile(path.resolve(__dirname, config.filename), content)
+    .then(() => config)
+    .catch(() => {
+      throw new Error(`Could not append to file ${config.filename}`)
+    })
 }
