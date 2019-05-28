@@ -20,6 +20,10 @@
         "unit": "rem",
         "values": [0.125, 0.25, 0.5, 1, 2]
       },
+      "radius": {
+        "unit": "rem",
+        "values": [0.125, 0.25, 0.5, 1]
+      },
       "styles": ["dotted", "dashed", "solid"]
     }
   }

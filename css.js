@@ -15,16 +15,19 @@ exports.perBreakpoint = function (config, fn) {
 }
 
 exports.generateBorders = function (config, prefix = '') {
+  const { border } = config.variables
   let str = ''
 
-  config.variables.border.styles.forEach(style => {
+  border.styles.forEach(style => {
     str += `.${prefix}b--${style} { border-style: ${style}; }\n`
   })
 
-  const { values, unit } = config.variables.border.width
+  border.width.values.forEach((value, i) => {
+    str += `.${prefix}bw${i + 1} { border-width: ${value}${border.width.unit}; }\n`
+  })
 
-  values.forEach((value, i) => {
-    str += `.${prefix}bw${i + 1} { border-width: ${value}${unit}; }\n`
+  border.radius.values.forEach((value, i) => {
+    str += `.${prefix}br${i + 1} { border-radius: ${value}${border.radius.unit}; }\n`
   })
 
   return str
