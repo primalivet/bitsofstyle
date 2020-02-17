@@ -1,0 +1,44 @@
+{
+  "filename": "generated.css",
+  "variables": {
+    "font": {
+      "scale": 1.15,
+      "base": 16,
+      "basePosition": 5,
+      "count": 6
+    },
+    "colors": [
+      {  "name":  "grey-base",       "value":  "#575757"  },
+      {  "name":  "grey-40",         "value":  "#B2B2B2"  },
+      {  "name":  "grey-20",         "value":  "#E3E3E3"  },
+      {  "name":  "navy-base",       "value":  "#004A6E"  },
+      {  "name":  "navy-40",         "value":  "#A6BBC9"  },
+      {  "name":  "navy-20",         "value":  "#E2E9EF"  },
+      {  "name":  "blue-base",       "value":  "#0094D8"  },
+      {  "name":  "blue-40",         "value":  "#A4D6F5"  },
+      {  "name":  "blue-20",         "value":  "#D4EAFA"  },
+      {  "name":  "turqouise-base",  "value":  "#66C1BF"  },
+      {  "name":  "turqouise-40",    "value":  "#CDE8E7"  },
+      {  "name":  "turqouise-20",    "value":  "#EAF3F3"  },
+      {  "name":  "green-base",      "value":  "#95C23D"  },
+      {  "name":  "green-40",        "value":  "#D8E7B9"  },
+      {  "name":  "green-20",        "value":  "#ECF3DE"  },
+      {  "name":  "yellow-base",     "value":  "#F8CF00"  },
+      {  "name":  "yellow-40",       "value":  "#FFECAD"  },
+      {  "name":  "yellow-20",       "value":  "#FFF6D9"  },
+      {  "name":  "red-base",        "value":  "#E94E24"  },
+      {  "name":  "red-40",          "value":  "#F9BF9F"  },
+      {  "name":  "red-20",          "value":  "#FDE0D0"  }
+    ],
+    "spacing": [0, "0.25rem", "0.5rem", "1rem", "2rem", "4rem", "8rem", "16rem"],
+    "breakpoints": [
+        { "prefix": "s-", "value": "30rem" },
+        { "prefix": "m-", "value": "48rem" },
+        { "prefix": "l-", "value": "64rem" }
+    ],
+    "borderWidth": ["0.125rem", "0.25rem", "0.5rem", "1rem", "2rem"],
+    "borderRadius": ["0.125rem", "0.25rem", "0.5rem", "1rem"],
+    "borderStyles": ["dotted", "dashed", "solid"],
+    "opacities": [0, 0.25, 0.5, 0.75, 1]
+  }
+}

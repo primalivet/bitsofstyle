@@ -1,30 +1,83 @@
 {
   "filename": "generated.css",
   "variables": {
-    "colors": [
-      { "name": "red", "value": "#ff0000" },
-      { "name": "green", "value": "#00ff00" },
-      { "name": "blue", "value": "#0000ff" }
-    ],
-    "spacing": {
-      "unit": "rem",
-      "values": [0, 0.25, 0.5, 1, 2, 4, 8, 16]
-    },
-    "breakpoints": [
-      { "prefix": "s-", "value": "30rem" },
-      { "prefix": "m-", "value": "48rem" },
-      { "prefix": "l-", "value": "64rem" }
-    ],
     "border": {
-      "width": {
-        "unit": "rem",
-        "values": [0.125, 0.25, 0.5, 1, 2]
+      "width":  ["0.125rem", "0.25rem", "0.5rem", "1rem", "2rem"],
+      "radius": ["0.125rem", "0.25rem", "0.5rem", "1rem"],
+      "style": ["dotted", "dashed", "solid"]
+    },
+    "boxShadow": [
+      [ "0px 0px 4px 2px rgba(0,0,0,0.2)" ],
+      [ "0px 0px 8px 2px rgba(0,0,0,0.2)" ],
+      [ "2px 2px 4px 2px rgba(0,0,0,0.2)" ],
+      [ "2px 2px 8px 0px rgba(0,0,0,0.2)" ],
+      [ "4px 4px 8px 0px rgba(0,0,0,0.2)" ]
+    ],
+    "breakpoint": [
+        { "prefix": "s-", "value": "30rem" },
+        { "prefix": "m-", "value": "48rem" },
+        { "prefix": "l-", "value": "64rem" }
+    ],
+    "color": [
+      { "name": "black",   "value": "#000000" },
+      { "name": "white",   "value": "#ffffff" },
+      { "name": "lightgrey",   "value": "#d8d8d8" },
+      { "name": "grey",   "value": "#808080" },
+      { "name": "darkgrey",   "value": "#4a4a4a" },
+      { "name": "red",   "value": "#ff0000" },
+      { "name": "green", "value": "#00ff00" },
+      { "name": "blue",  "value": "#0000ff" }
+    ],
+    "font": {
+      "size": {
+        "scale": 1.15,
+        "base": 16,
+        "basePosition": 5,
+        "count": 6
       },
-      "radius": {
-        "unit": "rem",
-        "values": [0.125, 0.25, 0.5, 1]
-      },
-      "styles": ["dotted", "dashed", "solid"]
+      "family": [
+        { "name": "sans", "value": "sans-serif" },
+        { "name": "serif", "value": "serif" },
+        { "name": "mono", "value": "monospace" }
+      ],
+      "weight": [100, 200, 300, 400, 500, 600, 700, 800, 900]
+    },
+    "height": {
+      "scale": 2,
+      "base": 16,
+      "count": 6
+    },
+    "margin": [0, "0.25rem", "0.5rem", "1rem", "2rem", "4rem", "8rem", "16rem"],
+    "maxWidth": {
+      "scale": 2,
+      "base": 16,
+      "count": 6
+    },
+    "opacity":    [0, 0.25, 0.5, 0.75, 1],
+    "padding": [0, "0.25rem", "0.5rem", "1rem", "2rem", "4rem", "8rem", "16rem"],
+    "width": {
+      "scale": 2,
+      "base": 16,
+      "count": 6
+    }
+  },
+  "element": {
+    "h1": { "classes": ["f1"]},
+    "h2": { "classes": ["f2"]},
+    "h3": { "classes": ["f3"]},
+    "h4": { "classes": ["f4"]},
+    "h5": { "classes": ["f5"]},
+    "h6": { "classes": ["f6"]}
+  },
+  "component": {
+    "btn--grey": {
+      "classes": ["pa2", "bg-grey", "white", "mono"]
+    },
+    "btn--blue": {
+      "classes": ["pa2", "bg-blue", "white", "mono"]
+    },
+    "btn--red": {
+      "classes": ["pa2", "bg-red", "white", "mono"]
     }
   }
 }

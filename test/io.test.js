@@ -1,7 +1,8 @@
 const test = require('ava')
 const fs = require('fs').promises
 const path = require('path')
-const { readConfig, cleanOutput, appendOutput } = require('../io.js')
+
+const { appendOutput, cleanOutput, readConfig } = require('../lib/io')
 
 test.beforeEach(async t => {
   t.context.config = await fs.readFile(path.resolve(__dirname, '../config.json'), { encoding: 'utf8' })
@@ -17,6 +18,37 @@ test.afterEach(async t => {
   if (access) {
     await fs.unlink(path.resolve(__dirname, '../', t.context.config.filename))
   }
+})
+
+test.serial('appendOutput should write to file', async t => {
+  await fs.writeFile(path.resolve(__dirname, '../', t.context.config.filename), '')
+  await appendOutput(t.context.config, 'hello world')
+
+  const actual = await fs.readFile(path.resolve(__dirname, '../', t.context.config.filename), { encoding: 'utf8' })
+  const expected = 'hello world'
+
+  t.is(actual, expected)
+})
+
+test.serial('appendOutput throws on unable to write file', async t => {
+  t.context.config.filename = '\\/\\/'
+
+  await t.throwsAsync(appendOutput(t.context.config, ''), { instanceOf: Error })
+})
+
+test.serial('cleanOutput removes content in exisiting file', async t => {
+  await fs.writeFile(path.resolve(__dirname, '../', t.context.config.filename), 'hello world')
+  await cleanOutput(t.context.config)
+
+  const actual = await fs.readFile(path.resolve(__dirname, '../', t.context.config.filename), { encoding: 'utf8' })
+  const expected = ''
+
+  t.is(actual, expected)
+})
+
+test.serial('cleanOutput throws on unable to write/clean file', async t => {
+  t.context.config.filename = '/ \\\\ '
+  await t.throwsAsync(cleanOutput(t.context.config), { instanceOf: Error })
 })
 
 test('readConfig returns promise', async t => {
@@ -44,33 +76,5 @@ test.serial('cleanOutput returns config', async t => {
   t.is(actual, expected)
 })
 
-test.serial('cleanOutput removes content in exisiting file', async t => {
-  await fs.writeFile(path.resolve(__dirname, '../', t.context.config.filename), 'hello world')
-  await cleanOutput(t.context.config)
-
-  const actual = await fs.readFile(path.resolve(__dirname, '../', t.context.config.filename), { encoding: 'utf8' })
-  const expected = ''
-
-  t.is(actual, expected)
-})
-
-test.serial('cleanOutput throws on unable to write/clean file', async t => {
-  t.context.config.filename = '/ \\\\ '
-  await t.throwsAsync(cleanOutput(t.context.config), { instanceOf: Error })
-})
-
-test.serial('appendOutput should write to file', async t => {
-  await fs.writeFile(path.resolve(__dirname, '../', t.context.config.filename), '')
-  await appendOutput(t.context.config, 'hello world')
-
-  const actual = await fs.readFile(path.resolve(__dirname, '../', t.context.config.filename), { encoding: 'utf8' })
-  const expected = 'hello world'
-
-  t.is(actual, expected)
-})
-
-test.serial('appendOutput throws on unable to write file', async t => {
-  t.context.config.filename = '\\/\\/'
-
-  await t.throwsAsync(appendOutput(t.context.config, ''), { instanceOf: Error })
-})
+test.todo('parseConfigComponent')
+test.todo('parseConfigElement')

@@ -2,7 +2,28 @@ const path = require('path')
 const fs = require('fs').promises
 const test = require('ava')
 
-const { perBreakpoint, generateBorders, generateColors, generateSpacing } = require('../css.js')
+const { generateBackgroundColor, staticBackgroundColor } = require('../lib/css-background-color')
+const { staticBackgroundPosition } = require('../lib/css-background-position')
+const { staticBackgroundSize } = require('../lib/css-background-size')
+const { generateBorder } = require('../lib/css-border')
+const { generateBorderColor } = require('../lib/css-border-color')
+const { generateBorderRadius, staticBorderRadius } = require('../lib/css-border-radius') 
+const { generateBorderStyle } = require('../lib/css-border-style') 
+const { generateBorderWidth } = require('../lib/css-border-width') 
+const { generateBoxShadow } = require('../lib/css-box-shadow') 
+const { generateColor, staticColor } = require('../lib/css-color') 
+const { staticFlexbox } = require('../lib/css-flexbox') 
+const { generateFontFamily } = require('../lib/css-font-family') 
+const { generateFontSize } = require('../lib/css-font-size') 
+const { generateFontWeight } = require('../lib/css-font-weight') 
+const { generateHeight, staticHeight } = require('../lib/css-height')
+const { generateMargin } = require('../lib/css-margin') 
+const { generateMaxWidth, staticMaxWidth } = require('../lib/css-max-width') 
+const { generateOpacity } = require('../lib/css-opacity') 
+const { generatePadding } = require('../lib/css-padding') 
+const { staticPosition } = require('../lib/css-position') 
+const { generateWidth, staticWidth } = require('../lib/css-width') 
+const { perBreakpoint } = require('../lib/css-per-breakpoint') 
 
 test.beforeEach('load default config', async t => {
   const configPath = path.resolve(__dirname, '../config.json')
@@ -15,148 +36,206 @@ test.afterEach(t => {
   delete t.context.config
 })
 
-test('perBreakpoint returns a correct css media query string', t => {
-  const { breakpoints } = t.context.config.variables
-  const mockFn = () => { return '.test-class { display: inherit; }\n' }
-  // manually build a string from the breakpoint config object
-  const mockCss = breakpoints.map(bp => {
-    return '' +
-     `@media screen and (min-width: ${bp.value}) {\n` +
-     mockFn() +
-     '}\n'
-  }).join('')
+/*
+ * Background
+ */
+test('generateBackgroundColor without prefix',
+  t => t.snapshot(generateBackgroundColor(t.context.config)))
 
-  const actual = perBreakpoint(t.context.config, mockFn)
-  const expected = mockFn() + mockCss
+/*
+ * Borders
+ */
+test('generateBorder without prefix', 
+  t => t.snapshot(generateBorder(t.context.config)))
 
-  t.is(actual, expected)
-})
+test('generateBorder with prefix', t => 
+  t.snapshot(generateBorder(t.context.config, 'foo-')))
 
-test('generateBorders returns a correct css string without prefix', t => {
-  const mockCss = '' +
-  '.b--dotted { border-style: dotted; }\n' +
-  '.b--dashed { border-style: dashed; }\n' +
-  '.b--solid { border-style: solid; }\n' +
-  '.bw1 { border-width: 0.125rem; }\n' +
-  '.bw2 { border-width: 0.25rem; }\n' +
-  '.bw3 { border-width: 0.5rem; }\n' +
-  '.bw4 { border-width: 1rem; }\n' +
-  '.bw5 { border-width: 2rem; }\n' +
-  '.br1 { border-radius: 0.125rem; }\n' +
-  '.br2 { border-radius: 0.25rem; }\n' +
-  '.br3 { border-radius: 0.5rem; }\n' +
-  '.br4 { border-radius: 1rem; }\n'
+/*
+ * Borders color
+ */
+test('generateBorderColor without prefix', 
+  t => t.snapshot(generateBorderColor(t.context.config)))
 
-  const actual = generateBorders(t.context.config)
-  const expected = mockCss
+test('generateBorderColor with prefix', t => 
+  t.snapshot(generateBorderColor(t.context.config, 'foo-')))
 
-  t.is(actual, expected)
-})
+/*
+ * Borders radius
+ */
+test('generateBorderRadius without prefix', 
+  t => t.snapshot(generateBorderRadius(t.context.config)))
 
-test('generateBorders returns a correct css string with prefix', t => {
-  const mockCss = '' +
-  '.foo-b--dotted { border-style: dotted; }\n' +
-  '.foo-b--dashed { border-style: dashed; }\n' +
-  '.foo-b--solid { border-style: solid; }\n' +
-  '.foo-bw1 { border-width: 0.125rem; }\n' +
-  '.foo-bw2 { border-width: 0.25rem; }\n' +
-  '.foo-bw3 { border-width: 0.5rem; }\n' +
-  '.foo-bw4 { border-width: 1rem; }\n' +
-  '.foo-bw5 { border-width: 2rem; }\n' +
-  '.foo-br1 { border-radius: 0.125rem; }\n' +
-  '.foo-br2 { border-radius: 0.25rem; }\n' +
-  '.foo-br3 { border-radius: 0.5rem; }\n' +
-  '.foo-br4 { border-radius: 1rem; }\n'
+test('generateBorderRadius with prefix', t => 
+  t.snapshot(generateBorderRadius(t.context.config, 'foo-')))
 
-  const actual = generateBorders(t.context.config, 'foo-')
-  const expected = mockCss
+test('staticBorderRadius without prefix', 
+  t => t.snapshot(staticBorderRadius(t.context.config)))
 
-  t.is(actual, expected)
-})
+test('staticBorderRadius with prefix', t => 
+  t.snapshot(staticBorderRadius(t.context.config, 'foo-')))
 
-test('generateBorders returns a correct css string with included static styles', t => {
-  const mockCss = '' +
-  '.b--dotted { border-style: dotted; }\n' +
-  '.b--dashed { border-style: dashed; }\n' +
-  '.b--solid { border-style: solid; }\n' +
-  '.bw1 { border-width: 0.125rem; }\n' +
-  '.bw2 { border-width: 0.25rem; }\n' +
-  '.bw3 { border-width: 0.5rem; }\n' +
-  '.bw4 { border-width: 1rem; }\n' +
-  '.bw5 { border-width: 2rem; }\n' +
-  '.br1 { border-radius: 0.125rem; }\n' +
-  '.br2 { border-radius: 0.25rem; }\n' +
-  '.br3 { border-radius: 0.5rem; }\n' +
-  '.br4 { border-radius: 1rem; }\n'
+/*
+ * Borders style
+ */
+test('generateBorderStyle without prefix', 
+  t => t.snapshot(generateBorderStyle(t.context.config)))
 
-  const actual = generateBorders(t.context.config)
-  const expected = mockCss
+test('generateBorderStyle with prefix', t => 
+  t.snapshot(generateBorderStyle(t.context.config, 'foo-')))
 
-  t.is(actual, expected)
-})
+/*
+ * Borders width
+ */
+test('generateBorderWidth without prefix', 
+  t => t.snapshot(generateBorderWidth(t.context.config)))
 
-test('generateColors retuns a correct css string without prefix', t => {
-  const mockCss = t.context.config.variables.colors.map(c => {
-    return '' +
-      `.${c.name} { color: ${c.value}; }\n` +
-      `.bg-${c.name} { background-color: ${c.value}; }\n` +
-      `.b--${c.name} { border-color: ${c.value}; }\n`
-  }).join('')
+test('generateBorderWidth with prefix', t => 
+  t.snapshot(generateBorderWidth(t.context.config, 'foo-')))
 
-  const actual = generateColors(t.context.config)
-  const expected = mockCss
+/*
+ * Box shadow
+ */
+test('generateBoxShadow without prefix', 
+  t => t.snapshot(generateBoxShadow(t.context.config)))
 
-  t.is(actual, expected)
-})
+test('generateBoxShadow with prefix', t => 
+  t.snapshot(generateBoxShadow(t.context.config, 'foo-')))
 
-test('generateColors retuns a correct css string with prefix', t => {
-  const mockCss = t.context.config.variables.colors.map(c => {
-    return '' +
-      `.foo-${c.name} { color: ${c.value}; }\n` +
-      `.foo-bg-${c.name} { background-color: ${c.value}; }\n` +
-      `.foo-b--${c.name} { border-color: ${c.value}; }\n`
-  }).join('')
+/*
+ * Color
+ */
+test('generateColor widthout prefix', t => 
+  t.snapshot(generateColor(t.context.config)))
 
-  const actual = generateColors(t.context.config, 'foo-')
-  const expected = mockCss
+test('generateColor width prefix', t => 
+  t.snapshot(generateColor(t.context.config, 'foo-')))
 
-  t.is(actual, expected)
-})
+test('staticColor widthout prefix', t => 
+  t.snapshot(staticColor(t.context.config)))
 
-test('generateSpacing retuns a correct css string without prefix', t => {
-  const { spacing } = t.context.config.variables
-  const mockCss = spacing.values.map((value, i) => {
-    return '' +
-      `.ma${i} { margin: ${value}${spacing.unit}; }\n` +
-      `.mv${i} { margin-top: ${value}${spacing.unit}; margin-bottom: ${value}${spacing.unit}; }\n` +
-      `.mh${i} { margin-left: ${value}${spacing.unit}; margin-right: ${value}${spacing.unit}; }\n` +
-      `.mt${i} { margin-top: ${value}${spacing.unit}; }\n` +
-      `.mb${i} { margin-bottom: ${value}${spacing.unit}; }\n` +
-      `.ml${i} { margin-left: ${value}${spacing.unit}; }\n` +
-      `.mr${i} { margin-right: ${value}${spacing.unit}; }\n`
-  }).join('')
+test('staticColor width prefix', t => 
+  t.snapshot(staticColor(t.context.config, 'foo-')))
 
-  const actual = generateSpacing(t.context.config)
-  const expected = mockCss
+/*
+ * Flexbox
+ */
+test('staticFlexbox without prefix', t => 
+  t.snapshot(staticFlexbox(t.context.config)))
 
-  t.is(actual, expected)
-})
+test('staticFlexbox with prefix', 
+  t => t.snapshot(staticFlexbox(t.context.config, 'foo-')))
 
-test('generateSpacing retuns a correct css string with prefix', t => {
-  const { spacing } = t.context.config.variables
-  const mockCss = spacing.values.map((value, i) => {
-    return '' +
-      `.foo-ma${i} { margin: ${value}${spacing.unit}; }\n` +
-      `.foo-mv${i} { margin-top: ${value}${spacing.unit}; margin-bottom: ${value}${spacing.unit}; }\n` +
-      `.foo-mh${i} { margin-left: ${value}${spacing.unit}; margin-right: ${value}${spacing.unit}; }\n` +
-      `.foo-mt${i} { margin-top: ${value}${spacing.unit}; }\n` +
-      `.foo-mb${i} { margin-bottom: ${value}${spacing.unit}; }\n` +
-      `.foo-ml${i} { margin-left: ${value}${spacing.unit}; }\n` +
-      `.foo-mr${i} { margin-right: ${value}${spacing.unit}; }\n`
-  }).join('')
+/*
+ * Font family
+ */
+test('generateFontFamily without prefix', t => 
+  t.snapshot(generateFontFamily(t.context.config)))
 
-  const actual = generateSpacing(t.context.config, 'foo-')
-  const expected = mockCss
+test('generateFontFamily with prefix', 
+  t => t.snapshot(generateFontFamily(t.context.config, 'foo-')))
 
-  t.is(actual, expected)
-})
+/*
+ * Font size
+ */
+test('generateFontSize without prefix', t => 
+  t.snapshot(generateFontSize(t.context.config)))
+
+test('generateFontSize with prefix', 
+  t => t.snapshot(generateFontSize(t.context.config, 'foo-')))
+
+/*
+ * Font weight
+ */
+test('generateFontWeight without prefix', t => 
+  t.snapshot(generateFontWeight(t.context.config)))
+
+test('generateFontWeight with prefix', 
+  t => t.snapshot(generateFontWeight(t.context.config, 'foo-')))
+
+/*
+ * Height
+ */
+test('generateHeight without prefix', t => 
+  t.snapshot(generateHeight(t.context.config)))
+
+test('generateHeight with prefix', t => 
+  t.snapshot(generateHeight(t.context.config, 'foo-')))
+
+test('staticHeight without prefix', t => 
+  t.snapshot(staticHeight(t.context.config)))
+
+test('staticHeight with prefix', t => 
+  t.snapshot(staticHeight(t.context.config, 'foo-')))
+
+/*
+ * Margin
+ */
+test('generateMargin without prefix', t => 
+  t.snapshot(generateMargin(t.context.config)))
+
+test('generateMargin with prefix', t => 
+  t.snapshot(generateMargin(t.context.config, 'foo-')))
+
+/*
+ * Max width
+ */
+test('generateMaxWidth widthout prefix', t => 
+  t.snapshot(generateMaxWidth(t.context.config)))
+
+test('generateMaxWidth width prefix', t => 
+  t.snapshot(generateMaxWidth(t.context.config, 'foo-')))
+
+test('staticMaxWidth widthout prefix', t => 
+  t.snapshot(staticMaxWidth(t.context.config)))
+
+test('staticMaxWidth width prefix', t => 
+  t.snapshot(staticMaxWidth(t.context.config, 'foo-')))
+
+/*
+ * Opacities
+ */
+test('generateOpacity without prefix', t => 
+  t.snapshot(generateOpacity(t.context.config)))
+
+test('generateOpacity with prefix', t => 
+  t.snapshot(generateOpacity(t.context.config, 'foo-')))
+
+/*
+ * Padding
+ */
+test('generatePadding without prefix', t => 
+  t.snapshot(generatePadding(t.context.config)))
+
+test('generatePadding with prefix', t => 
+  t.snapshot(generatePadding(t.context.config, 'foo-')))
+
+/*
+ * Position
+ */
+test('staticPosition without prefix', t => 
+  t.snapshot(staticPosition(t.context.config)))
+
+test('staticPosition with prefix', t => 
+  t.snapshot(staticPosition(t.context.config, 'foo-')))
+
+/*
+ * Width
+ */
+test('generateWidth without prefix', t => 
+  t.snapshot(generateWidth(t.context.config)))
+
+test('generateWidth with prefix', t => 
+  t.snapshot(generateWidth(t.context.config, 'foo-')))
+
+test('staticWidth without prefix', t => 
+  t.snapshot(staticWidth(t.context.config)))
+
+test('staticWidth with prefix', t => 
+  t.snapshot(staticWidth(t.context.config, 'foo-')))
+
+/*
+ * Breakpoints
+ */
+test('perBreakpoint', 
+  t => t.snapshot(perBreakpoint(t.context.config, ()=> '.test-class { display: inherit; }\n')))

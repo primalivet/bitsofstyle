@@ -2,20 +2,20 @@
   "name": "bitsofstyle",
   "version": "0.0.1",
   "description": "",
-  "main": "index.js",
+  "main": "bin/index.js",
   "scripts": {
     "test": "ava",
     "test:watch": "ava -wv",
-    "coverage": "nyc --reporter text npm run test"
+    "test:update-snapshots": "ava --update-snapshots",
+    "test:coverage": "nyc --reporter text npm run test"
   },
-  "author": "",
+  "author": "Gustaf Holm (https://gustafholm.com)",
   "license": "ISC",
   "devDependencies": {
-    "ava": "^1.4.1",
-    "mock-fs": "^4.10.0",
-    "nyc": "^14.1.1",
-    "standard": "^12.0.1",
-    "tap": "^14.1.7",
-    "xo": "^0.24.0"
+    "ava": "^2.4.0",
+    "nyc": "^14.1.1"
+  },
+  "bin": {
+    "bitsofstyle": "./bin/index.js"
   }
 }
